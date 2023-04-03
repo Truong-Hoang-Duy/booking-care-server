@@ -9,6 +9,7 @@ import {
   deleteCRUD,
 } from "../controllers/homeController";
 import userController from "../controllers/userController";
+import allcodeController from "../controllers/allcodeController";
 
 const router = express.Router();
 
@@ -30,6 +31,8 @@ const initWebRouter = (app) => {
   router.post("/api/v1/user/create", userController.handleCreateNewUser);
   router.put("/api/v1/user/edit", userController.handleEditUser);
   router.delete("/api/v1/user/delete", userController.handleDeleteUser);
+
+  router.get("/api/v1/allcode/get-all", allcodeController.getAllCode);
 
   return app.use("/", router);
 };

@@ -26,7 +26,7 @@ const handleUserLogin = (email, password) => {
         // if user already exist, compare password
         const user = await db.User.findOne({
           where: { email },
-          attributes: ["email", "roleId", "password"],
+          attributes: ["email", "password", "roleId", "firstName"],
         });
         if (user) {
           // compare password
@@ -93,7 +93,18 @@ const hashUserPassword = (pw) => {
 };
 
 const createNewUser = (data) => {
-  const { email, password, firstName, lastName, address, phonenumber, gender, roleId } = data;
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    address,
+    phoneNumber,
+    gender,
+    role,
+    position,
+    avatar,
+  } = data;
   return new Promise(async (resolve, reject) => {
     try {
       // check email is exist ?
@@ -109,9 +120,11 @@ const createNewUser = (data) => {
           firstName,
           lastName,
           address,
-          phonenumber,
-          gender: gender === "1" ? true : false,
-          roleId,
+          phonenumber: phoneNumber,
+          gender,
+          roleId: role,
+          positionId: position,
+          image: avatar,
         });
         const response = new Response(200, "Create a new user success");
         resolve(response);
@@ -144,6 +157,13 @@ const editUser = async (data) => {
         user.firstName = data.firstName;
         user.lastName = data.lastName;
         user.address = data.address;
+        user.phonenumber = data.phoneNumber;
+        user.gender = data.gender;
+        user.roleId = data.role;
+        user.positionId = data.position;
+        if (data.avatar) {
+          user.image = data.avatar;
+        }
         await user.save();
         const response = new Response(200, "Update success");
         resolve(response);
