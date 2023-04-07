@@ -10,6 +10,7 @@ import {
 } from "../controllers/homeController";
 import userController from "../controllers/userController";
 import allcodeController from "../controllers/allcodeController";
+import doctorController from "../controllers/doctorController";
 
 const router = express.Router();
 
@@ -33,6 +34,10 @@ const initWebRouter = (app) => {
   router.delete("/api/v1/user/delete", userController.handleDeleteUser);
 
   router.get("/api/v1/allcode/get-all", allcodeController.getAllCode);
+
+  router.get("/api/v1/doctor/get-all", doctorController.getDoctor);
+  router.post("/api/v1/doctor-info/create", doctorController.createInfoDoctor);
+  router.get("/api/v1/doctor/get-detail-by-id", doctorController.getDetailDoctorById);
 
   return app.use("/", router);
 };
