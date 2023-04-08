@@ -38,6 +38,8 @@ const initWebRouter = (app) => {
   router.get("/api/v1/doctor/get-all", doctorController.getDoctor);
   router.post("/api/v1/doctor-info/create", doctorController.createInfoDoctor);
   router.get("/api/v1/doctor/get-detail-by-id", doctorController.getDetailDoctorById);
+  router.post("/api/v1/schedule/create", doctorController.createSchedule);
+  router.get("/api/v1/schedule-by-date/get-all", doctorController.getScheduleByDate);
 
   return app.use("/", router);
 };

@@ -23,4 +23,24 @@ const getDetailDoctorById = async (req, res) => {
   } else return res.status(response.code).json(response);
 };
 
-export default { getDoctor, createInfoDoctor, getDetailDoctorById };
+const createSchedule = async (req, res) => {
+  const response = await doctorServices.createSchedule(req.body);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
+const getScheduleByDate = async (req, res) => {
+  const response = await doctorServices.getScheduleByDate(req.query.doctorId, req.query.date);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
+export default {
+  getDoctor,
+  createInfoDoctor,
+  getDetailDoctorById,
+  createSchedule,
+  getScheduleByDate,
+};
