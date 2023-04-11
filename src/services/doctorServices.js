@@ -34,36 +34,73 @@ const getDoctor = (limit) => {
 };
 
 const postInfoDoctor = (data) => {
-  const { doctorId, contentHTML, contentMarkdown, description, action } = data;
+  const {
+    doctorId,
+    price,
+    payment,
+    province,
+    nameClinic,
+    addressClinic,
+    note,
+    contentHTML,
+    contentMarkdown,
+    description,
+  } = data;
   return new Promise(async (resolve, reject) => {
     try {
-      if (!doctorId || !contentHTML || !contentMarkdown || !action) {
+      if (!doctorId || !price || !payment || !province || !contentHTML || !contentMarkdown) {
         const response = new Response(400, "Missing parameter");
         resolve(response);
       } else {
-        if (action === "create") {
+        // upsert to Markdown
+        const doctorMarkdown = await db.Markdown.findOne({
+          where: { doctorId },
+          raw: false,
+        });
+        if (doctorMarkdown) {
+          doctorMarkdown.contentHTML = contentHTML;
+          doctorMarkdown.contentMarkdown = contentMarkdown;
+          doctorMarkdown.description = description;
+          doctorMarkdown.updateAt = new Date();
+          await doctorMarkdown.save();
+        } else {
           await db.Markdown.create({
             contentHTML,
             contentMarkdown,
             description,
             doctorId,
           });
+        }
+
+        // upsert to Doctor_infor table
+        const doctorInfor = await db.Doctor_Infor.findOne({
+          where: { doctorId },
+          raw: false,
+        });
+        if (doctorInfor) {
+          // update
+          doctorInfor.priceId = price;
+          doctorInfor.paymentId = payment;
+          doctorInfor.provinceId = province;
+          addressClinic;
+          nameClinic;
+          doctorInfor.note = note;
+          await doctorInfor.save();
+          const response = new Response(200, "Edit info doctor succeed!");
+          resolve(response);
+        } else {
+          // create
+          await db.Doctor_Infor.create({
+            doctorId,
+            priceId: price,
+            paymentId: payment,
+            provinceId: province,
+            addressClinic,
+            nameClinic,
+            note,
+          });
           const response = new Response(200, "Save info doctor succeed!");
           resolve(response);
-        } else if (action === "edit") {
-          const doctorMarkdown = await db.Markdown.findOne({
-            where: { doctorId },
-            raw: false,
-          });
-          if (doctorMarkdown) {
-            doctorMarkdown.contentHTML = contentHTML;
-            doctorMarkdown.contentMarkdown = contentMarkdown;
-            doctorMarkdown.description = description;
-            doctorMarkdown.updateAt = new Date();
-            await doctorMarkdown.save();
-            const response = new Response(200, "Edit info doctor succeed!");
-            resolve(response);
-          }
         }
       }
     } catch (error) {
@@ -87,6 +124,17 @@ const getDetailDoctorById = (id) => {
           include: [
             { model: db.Markdown, attributes: ["contentHTML", "contentMarkdown", "description"] },
             { model: db.Allcode, as: "positionData", attributes: ["valueEn", "valueVi"] },
+            {
+              model: db.Doctor_Infor,
+              attributes: {
+                exclude: ["doctorId", "id", "updatedAt", "createdAt"],
+              },
+              include: [
+                { model: db.Allcode, as: "priceTypeData", attributes: ["valueEn", "valueVi"] },
+                { model: db.Allcode, as: "provinceTypeData", attributes: ["valueEn", "valueVi"] },
+                { model: db.Allcode, as: "paymentTypeData", attributes: ["valueEn", "valueVi"] },
+              ],
+            },
           ],
           raw: false,
           nest: true,
