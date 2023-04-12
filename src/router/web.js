@@ -11,6 +11,7 @@ import {
 import userController from "../controllers/userController";
 import allcodeController from "../controllers/allcodeController";
 import doctorController from "../controllers/doctorController";
+import patientController from "../controllers/patientController";
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ const initWebRouter = (app) => {
 
   // api login
   router.post("/api/v1/login", userController.handleLogin);
+  router.post("/api/v1/signup", userController.handleSignUp);
 
   // api user
   router.get("/api/v1/user/get-all", userController.handleGetAllUsers);
@@ -41,6 +43,9 @@ const initWebRouter = (app) => {
 
   router.post("/api/v1/schedule/create", doctorController.createSchedule);
   router.get("/api/v1/schedule-by-date/get-all", doctorController.getScheduleByDate);
+
+  router.post("/api/v1/patient-book-doctor/create", patientController.postBookDoctor);
+  router.get("/api/v1/patient-by-email/get", patientController.getPatientByEmail);
 
   return app.use("/", router);
 };

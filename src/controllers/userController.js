@@ -23,6 +23,13 @@ const handleLogin = async (req, res) => {
   }
 };
 
+const handleSignUp = async (req, res) => {
+  const response = await userServices.handleSignUp(req.body);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
 const handleGetAllUsers = async (req, res) => {
   const id = req.query.id; //ALL, id
   const users = await userServices.getAllUsers(id);
@@ -62,6 +69,7 @@ const handleDeleteUser = async (req, res) => {
 
 export default {
   handleLogin,
+  handleSignUp,
   handleGetAllUsers,
   handleCreateNewUser,
   handleEditUser,

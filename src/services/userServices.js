@@ -1,6 +1,7 @@
 import db from "../models";
 import bcrypt from "bcryptjs";
 import { Response } from "../utils/Response";
+import _ from "lodash";
 const salt = bcrypt.genSaltSync(10);
 
 const checkUserEmail = (email) => {
@@ -14,6 +15,17 @@ const checkUserEmail = (email) => {
       }
     } catch (e) {
       reject(e);
+    }
+  });
+};
+
+const hashUserPassword = (pw) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const hashPassword = bcrypt.hashSync(pw, salt);
+      resolve(hashPassword);
+    } catch (error) {
+      reject(error);
     }
   });
 };
@@ -54,6 +66,31 @@ const handleUserLogin = (email, password) => {
   });
 };
 
+const handleSignUp = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (_.isEmpty(data)) {
+        const response = new Response(400, "Missing parameters");
+        resolve(response);
+      } else {
+        const { email, password } = data;
+        const isEmailExist = await checkUserEmail(email);
+        if (isEmailExist) {
+          const response = new Response(500, "Email already exists");
+          resolve(response);
+        } else {
+          const hassPW = await hashUserPassword(password);
+          await db.User.create({ email, password: hassPW, roleId: "R3" });
+          const response = new Response(200, "Successful account registration");
+          resolve(response);
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 const getAllUsers = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -81,16 +118,6 @@ const getAllUsers = (id) => {
 };
 
 // create new user
-const hashUserPassword = (pw) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const hashPassword = bcrypt.hashSync(pw, salt);
-      resolve(hashPassword);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
 
 const createNewUser = (data) => {
   const {
@@ -177,4 +204,4 @@ const editUser = async (data) => {
   });
 };
 
-export default { handleUserLogin, getAllUsers, createNewUser, deleteUser, editUser };
+export default { handleUserLogin, handleSignUp, getAllUsers, createNewUser, deleteUser, editUser };
