@@ -37,10 +37,18 @@ const getScheduleByDate = async (req, res) => {
   } else return res.status(response.code).json(response);
 };
 
+const getDoctorInforById = async (req, res) => {
+  const response = await doctorServices.getDoctorInforById(req.query.id);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
 export default {
   getDoctor,
   createInfoDoctor,
   getDetailDoctorById,
   createSchedule,
   getScheduleByDate,
+  getDoctorInforById,
 };

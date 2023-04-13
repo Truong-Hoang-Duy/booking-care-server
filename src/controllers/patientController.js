@@ -14,4 +14,11 @@ const getPatientByEmail = async (req, res) => {
   } else return res.status(response.code).json(response);
 };
 
-export default { postBookDoctor, getPatientByEmail };
+const postVerifyBookDoctor = async (req, res) => {
+  const response = await patientServices.postVerifyBookDoctor(req.body);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
+export default { postBookDoctor, getPatientByEmail, postVerifyBookDoctor };

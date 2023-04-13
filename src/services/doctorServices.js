@@ -33,9 +33,50 @@ const getDoctor = (limit) => {
   });
 };
 
+const checkInfoDoctorFields = (inputData) => {
+  const arrFields = [
+    "doctorId",
+    "price",
+    "payment",
+    "province",
+    "nameClinic",
+    "addressClinic",
+    "specialtyId",
+    "note",
+    "description",
+    "contentHTML",
+    "contentMarkdown",
+  ];
+  const arrError = [
+    "bác sĩ",
+    "giá khám bệnh",
+    "phương thức thanh toán",
+    "tỉnh thành",
+    "tên phòng khám",
+    "địa chỉ phòng khám",
+    "chuyên khoa",
+    "phòng khám",
+    "ghi chú",
+    "thông tin giới thiệu",
+    "thông tin giới thiệu",
+    "thông tin giới thiệu",
+  ];
+  let isValid = true;
+  let element = "";
+  for (let i = 0; i < arrFields.length; i++) {
+    if (!inputData[arrFields[i]]) {
+      isValid = false;
+      element = arrError[i];
+      break;
+    }
+  }
+  return { isValid, element };
+};
+
 const postInfoDoctor = (data) => {
   const {
     doctorId,
+    specialtyId,
     price,
     payment,
     province,
@@ -48,8 +89,9 @@ const postInfoDoctor = (data) => {
   } = data;
   return new Promise(async (resolve, reject) => {
     try {
-      if (!doctorId || !price || !payment || !province || !contentHTML || !contentMarkdown) {
-        const response = new Response(400, "Missing parameter");
+      const checkData = checkInfoDoctorFields(data);
+      if (checkData.isValid === false) {
+        const response = new Response(400, `Vui lòng điền đủ thông tin của ${checkData.element}`);
         resolve(response);
       } else {
         // upsert to Markdown
@@ -61,7 +103,6 @@ const postInfoDoctor = (data) => {
           doctorMarkdown.contentHTML = contentHTML;
           doctorMarkdown.contentMarkdown = contentMarkdown;
           doctorMarkdown.description = description;
-          doctorMarkdown.updateAt = new Date();
           await doctorMarkdown.save();
         } else {
           await db.Markdown.create({
@@ -82,6 +123,7 @@ const postInfoDoctor = (data) => {
           doctorInfor.priceId = price;
           doctorInfor.paymentId = payment;
           doctorInfor.provinceId = province;
+          doctorInfor.specialtyId = specialtyId;
           addressClinic;
           nameClinic;
           doctorInfor.note = note;
@@ -98,6 +140,7 @@ const postInfoDoctor = (data) => {
             addressClinic,
             nameClinic,
             note,
+            specialtyId,
           });
           const response = new Response(200, "Save info doctor succeed!");
           resolve(response);
@@ -206,7 +249,10 @@ const getScheduleByDate = (doctorId, date) => {
       } else {
         const data = await db.Schedule.findAll({
           where: { doctorId },
-          include: [{ model: db.Allcode, as: "timeTypeData", attributes: ["valueEn", "valueVi"] }],
+          include: [
+            { model: db.Allcode, as: "timeTypeData", attributes: ["valueEn", "valueVi"] },
+            { model: db.User, as: "doctorData", attributes: ["firstName", "lastName"] },
+          ],
           raw: true,
           nest: true,
         });
@@ -226,10 +272,30 @@ const getScheduleByDate = (doctorId, date) => {
   });
 };
 
+const getDoctorInforById = (doctorId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!doctorId) {
+        const response = new Response(400, "Missing id");
+        resolve(response);
+      } else {
+        const doctorInfor = await db.Doctor_Infor.findOne({
+          where: { doctorId },
+        });
+        const response = new Response(200, "Success", doctorInfor);
+        resolve(response);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export default {
   getDoctor,
   postInfoDoctor,
   getDetailDoctorById,
   createSchedule,
   getScheduleByDate,
+  getDoctorInforById,
 };
