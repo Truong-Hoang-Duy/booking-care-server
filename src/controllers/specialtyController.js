@@ -7,6 +7,13 @@ const getAllSpecialty = async (req, res) => {
   } else return res.status(response.code).json(response);
 };
 
+const getOneSpecialty = async (req, res) => {
+  const response = await specialtyServices.getOneSpecialty(req.query.id, req.query.location);
+  if (response.code === 200) {
+    return res.status(200).json(response);
+  } else return res.status(response.code).json(response);
+};
+
 const createSpecialty = async (req, res) => {
   const response = await specialtyServices.createSpecialty(req.body);
   if (response.code === 200) {
@@ -14,4 +21,4 @@ const createSpecialty = async (req, res) => {
   } else return res.status(response.code).json(response);
 };
 
-export default { getAllSpecialty, createSpecialty };
+export default { getAllSpecialty, createSpecialty, getOneSpecialty };

@@ -124,4 +124,30 @@ const postVerifyBookDoctor = (data) => {
   });
 };
 
-export default { postBookDoctor, getPatientByEmail, postVerifyBookDoctor };
+const sendRemedy = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { email, doctorId, patientId, timeType } = data;
+      if (!email || !doctorId || !patientId || !timeType) {
+        const response = new Response(400, "Missing parameters");
+        return resolve(response);
+      } else {
+        const appointment = await db.Booking.findOne({
+          where: { doctorId, patientId, timeType, statusId: "S2" },
+          raw: false,
+        });
+        if (appointment) {
+          appointment.statusId = "S3";
+          await appointment.save();
+          await emailServices.sendAttachments(data);
+          const response = new Response(200, "Send remedy succeed");
+          resolve(response);
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export default { postBookDoctor, getPatientByEmail, postVerifyBookDoctor, sendRemedy };

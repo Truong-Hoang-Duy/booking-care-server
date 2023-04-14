@@ -13,6 +13,7 @@ import allcodeController from "../controllers/allcodeController";
 import doctorController from "../controllers/doctorController";
 import patientController from "../controllers/patientController";
 import specialtyController from "../controllers/specialtyController";
+import clinicController from "../controllers/clinicController";
 
 const router = express.Router();
 
@@ -43,15 +44,23 @@ const initWebRouter = (app) => {
   router.get("/api/v1/doctor/get-detail-by-id", doctorController.getDetailDoctorById);
   router.get("/api/v1/doctor-infor/get-id", doctorController.getDoctorInforById);
 
+  router.get("/api/v1/list-patient-for-doctor/get-all", doctorController.getListPatientForDoctor);
+
   router.post("/api/v1/schedule/create", doctorController.createSchedule);
   router.get("/api/v1/schedule-by-date/get-all", doctorController.getScheduleByDate);
 
   router.post("/api/v1/patient-book-doctor/create", patientController.postBookDoctor);
   router.get("/api/v1/patient-by-email/get", patientController.getPatientByEmail);
   router.post("/api/v1/verify-book-doctor/create", patientController.postVerifyBookDoctor);
+  router.post("/api/v1/send-remedy", patientController.sendRemedy);
 
   router.get("/api/v1/specialty/get-all", specialtyController.getAllSpecialty);
+  router.get("/api/v1/specialty/get-one", specialtyController.getOneSpecialty);
   router.post("/api/v1/specialty/create", specialtyController.createSpecialty);
+
+  router.get("/api/v1/clinic/get-all", clinicController.getAllClinic);
+  router.get("/api/v1/clinic/get-one", clinicController.getOneClinic);
+  router.post("/api/v1/clinic/create", clinicController.createClinic);
 
   return app.use("/", router);
 };

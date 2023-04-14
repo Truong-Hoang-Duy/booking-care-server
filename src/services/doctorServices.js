@@ -42,6 +42,7 @@ const checkInfoDoctorFields = (inputData) => {
     "nameClinic",
     "addressClinic",
     "specialtyId",
+    "clinicId",
     "note",
     "description",
     "contentHTML",
@@ -77,6 +78,7 @@ const postInfoDoctor = (data) => {
   const {
     doctorId,
     specialtyId,
+    clinicId,
     price,
     payment,
     province,
@@ -124,6 +126,7 @@ const postInfoDoctor = (data) => {
           doctorInfor.paymentId = payment;
           doctorInfor.provinceId = province;
           doctorInfor.specialtyId = specialtyId;
+          doctorInfor.clinicId = clinicId;
           addressClinic;
           nameClinic;
           doctorInfor.note = note;
@@ -137,6 +140,7 @@ const postInfoDoctor = (data) => {
             priceId: price,
             paymentId: payment,
             provinceId: province,
+            clinicId,
             addressClinic,
             nameClinic,
             note,
@@ -291,6 +295,38 @@ const getDoctorInforById = (doctorId) => {
   });
 };
 
+const getListPatientForDoctor = (doctorId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!doctorId || !date) {
+        const response = new Response(400, "Missing parameters");
+        resolve(response);
+      } else {
+        const data = await db.Booking.findAll({
+          where: { statusId: "S2", doctorId, date: new Date(+date) },
+          include: [
+            {
+              model: db.User,
+              as: "patientData",
+              attributes: ["email", "firstName", "lastName", "address", "gender"],
+              include: [
+                { model: db.Allcode, as: "genderData", attributes: ["valueEn", "valueVi"] },
+              ],
+            },
+            { model: db.Allcode, as: "timeTypePatient", attributes: ["valueEn", "valueVi"] },
+          ],
+          raw: true,
+          nest: true,
+        });
+        const response = new Response(200, "Success", data);
+        resolve(response);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export default {
   getDoctor,
   postInfoDoctor,
@@ -298,4 +334,5 @@ export default {
   createSchedule,
   getScheduleByDate,
   getDoctorInforById,
+  getListPatientForDoctor,
 };
