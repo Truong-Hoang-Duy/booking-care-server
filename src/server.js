@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine";
-import initWebRouter from "./router/web";
+import initWebRouter from "./routes/web";
 import connectDB from "./config/connectDB";
 import cors from "cors";
 require("dotenv").config();
